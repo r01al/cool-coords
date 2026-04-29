@@ -1,44 +1,51 @@
 export type {
-  BoundingBox,
-  Circle,
-  Coordinate,
-  CoordinateGroup,
-  GeoCoordinate,
-  PolygonShape,
-  WindingDirection
+	BoundingBox,
+	Circle,
+	Coordinate,
+	CoordinateGroup,
+	GeoCoordinate,
+	PolygonShape,
+	WindingDirection
 } from './types';
 
-export { distance, pathLength, squaredDistance } from './metrics';
+export { createDistanceMatrix, distance, pathLength, squaredDistance } from './metrics';
 export {
-  boundingBox,
-  centroid,
-  circleFromThreePoints,
-  circleFromTwoPoints,
-  isPointInCircle,
-  midpoint,
-  minimumEnclosingCircle,
-  translate
+	boundingBox,
+	centroid,
+	circleFromThreePoints,
+	circleFromTwoPoints,
+	isPointInCircle,
+	midpoint,
+	minimumEnclosingCircle,
+	translate
 } from './geometry';
 export {
-  EARTH_RADIUS_METERS,
-  destinationPoint,
-  geodesicPathLength,
-  greatCircleMidpoint,
-  haversineDistance,
-  initialBearing,
-  normalizeLongitude
+	EARTH_RADIUS_METERS,
+	createGeodesicDistanceMatrix,
+	destinationPoint,
+	geodesicPathLength,
+	greatCircleMidpoint,
+	haversineDistance,
+	initialBearing,
+	normalizeLongitude
 } from './geospatial';
 export {
-  geodesicMultiPolygonArea,
-  geodesicPolygonArea,
-  geodesicPolygonAreaWithHoles,
-  geodesicPolygonSignedArea,
-  multiPolygonArea,
-  polygonArea,
-  polygonAreaWithHoles,
-  polygonSignedArea,
-  polygonWinding,
-  triangleArea,
-  triangleSignedArea
+	geodesicMultiPolygonArea,
+	geodesicMultiPolygonCentroid,
+	geodesicPolygonArea,
+	geodesicPolygonAreaWithHoles,
+	geodesicPolygonCentroid,
+	geodesicPolygonCentroidWithHoles,
+	geodesicPolygonSignedArea,
+	multiPolygonArea,
+	multiPolygonCentroid,
+	polygonArea,
+	polygonAreaWithHoles,
+	polygonCentroid,
+	polygonCentroidWithHoles,
+	polygonSignedArea,
+	polygonWinding,
+	triangleArea,
+	triangleSignedArea
 } from './polygon';
 export { groupByDistance } from './grouping';

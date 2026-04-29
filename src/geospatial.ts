@@ -2,171 +2,204 @@ import type { GeoCoordinate } from './types';
 
 export const EARTH_RADIUS_METERS = 6_371_008.8;
 
+/** Returns the great-circle distance between two geographic coordinates. */
 export function haversineDistance(
-  a: GeoCoordinate,
-  b: GeoCoordinate,
-  radius = EARTH_RADIUS_METERS
+	a: GeoCoordinate,
+	b: GeoCoordinate,
+	radius = EARTH_RADIUS_METERS
 ): number {
-  assertValidRadius(radius);
-  assertValidGeoCoordinate(a, 'a');
-  assertValidGeoCoordinate(b, 'b');
+	assertValidRadius(radius);
+	assertValidGeoCoordinate(a, 'a');
+	assertValidGeoCoordinate(b, 'b');
 
-  const latitude1 = toRadians(a.latitude);
-  const latitude2 = toRadians(b.latitude);
-  const deltaLatitude = toRadians(b.latitude - a.latitude);
-  const deltaLongitude = toRadians(b.longitude - a.longitude);
+	const latitude1 = toRadians(a.latitude);
+	const latitude2 = toRadians(b.latitude);
+	const deltaLatitude = toRadians(b.latitude - a.latitude);
+	const deltaLongitude = toRadians(b.longitude - a.longitude);
 
-  const haversine =
-    Math.sin(deltaLatitude / 2) ** 2 +
-    Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(deltaLongitude / 2) ** 2;
+	const haversine =
+		Math.sin(deltaLatitude / 2) ** 2 +
+		Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(deltaLongitude / 2) ** 2;
 
-  const angularDistance = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+	const angularDistance = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 
-  return radius * angularDistance;
+	return radius * angularDistance;
 }
 
+/** Builds a symmetric great-circle distance matrix for geographic coordinates. */
+export function createGeodesicDistanceMatrix(
+	points: GeoCoordinate[],
+	radius = EARTH_RADIUS_METERS
+): number[][] {
+	assertValidRadius(radius);
+
+	const matrix = Array.from({ length: points.length }, () => Array<number>(points.length).fill(0));
+
+	for (let row = 0; row < points.length; row += 1) {
+		for (let column = row + 1; column < points.length; column += 1) {
+			const value = haversineDistance(points[row]!, points[column]!, radius);
+
+			matrix[row]![column] = value;
+			matrix[column]![row] = value;
+		}
+	}
+
+	return matrix;
+}
+
+/** Sums the great-circle segment lengths of a geographic path. */
 export function geodesicPathLength(
-  points: GeoCoordinate[],
-  closed = false,
-  radius = EARTH_RADIUS_METERS
+	points: GeoCoordinate[],
+	closed = false,
+	radius = EARTH_RADIUS_METERS
 ): number {
-  assertValidRadius(radius);
+	assertValidRadius(radius);
 
-  if (points.length < 2) {
-    return 0;
-  }
+	if (points.length < 2) {
+		return 0;
+	}
 
-  let total = 0;
+	let total = 0;
 
-  for (let index = 1; index < points.length; index += 1) {
-    total += haversineDistance(points[index - 1]!, points[index]!, radius);
-  }
+	for (let index = 1; index < points.length; index += 1) {
+		total += haversineDistance(points[index - 1]!, points[index]!, radius);
+	}
 
-  if (closed) {
-    total += haversineDistance(points[points.length - 1]!, points[0]!, radius);
-  }
+	if (closed) {
+		total += haversineDistance(points[points.length - 1]!, points[0]!, radius);
+	}
 
-  return total;
+	return total;
 }
 
+/** Returns the initial bearing from one geographic coordinate to another. */
 export function initialBearing(a: GeoCoordinate, b: GeoCoordinate): number {
-  assertValidGeoCoordinate(a, 'a');
-  assertValidGeoCoordinate(b, 'b');
+	assertValidGeoCoordinate(a, 'a');
+	assertValidGeoCoordinate(b, 'b');
 
-  const latitude1 = toRadians(a.latitude);
-  const latitude2 = toRadians(b.latitude);
-  const longitudeDelta = toRadians(b.longitude - a.longitude);
+	const latitude1 = toRadians(a.latitude);
+	const latitude2 = toRadians(b.latitude);
+	const longitudeDelta = toRadians(b.longitude - a.longitude);
 
-  const y = Math.sin(longitudeDelta) * Math.cos(latitude2);
-  const x =
-    Math.cos(latitude1) * Math.sin(latitude2) -
-    Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longitudeDelta);
+	const y = Math.sin(longitudeDelta) * Math.cos(latitude2);
+	const x =
+		Math.cos(latitude1) * Math.sin(latitude2) -
+		Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longitudeDelta);
 
-  return normalizeBearing(toDegrees(Math.atan2(y, x)));
+	return normalizeBearing(toDegrees(Math.atan2(y, x)));
 }
 
+/** Projects a new geographic coordinate from a start, distance, and bearing. */
 export function destinationPoint(
-  start: GeoCoordinate,
-  distance: number,
-  bearing: number,
-  radius = EARTH_RADIUS_METERS
+	start: GeoCoordinate,
+	distance: number,
+	bearing: number,
+	radius = EARTH_RADIUS_METERS
 ): GeoCoordinate {
-  assertValidGeoCoordinate(start, 'start');
-  assertFiniteNumber(distance, 'distance');
-  assertFiniteNumber(bearing, 'bearing');
-  assertValidRadius(radius);
+	assertValidGeoCoordinate(start, 'start');
+	assertFiniteNumber(distance, 'distance');
+	assertFiniteNumber(bearing, 'bearing');
+	assertValidRadius(radius);
 
-  const angularDistance = distance / radius;
-  const bearingRadians = toRadians(bearing);
-  const latitude1 = toRadians(start.latitude);
-  const longitude1 = toRadians(start.longitude);
+	const angularDistance = distance / radius;
+	const bearingRadians = toRadians(bearing);
+	const latitude1 = toRadians(start.latitude);
+	const longitude1 = toRadians(start.longitude);
 
-  const latitude2 = Math.asin(
-    Math.sin(latitude1) * Math.cos(angularDistance) +
-      Math.cos(latitude1) * Math.sin(angularDistance) * Math.cos(bearingRadians)
-  );
+	const latitude2 = Math.asin(
+		Math.sin(latitude1) * Math.cos(angularDistance) +
+			Math.cos(latitude1) * Math.sin(angularDistance) * Math.cos(bearingRadians)
+	);
 
-  const longitude2 =
-    longitude1 +
-    Math.atan2(
-      Math.sin(bearingRadians) * Math.sin(angularDistance) * Math.cos(latitude1),
-      Math.cos(angularDistance) - Math.sin(latitude1) * Math.sin(latitude2)
-    );
+	const longitude2 =
+		longitude1 +
+		Math.atan2(
+			Math.sin(bearingRadians) * Math.sin(angularDistance) * Math.cos(latitude1),
+			Math.cos(angularDistance) - Math.sin(latitude1) * Math.sin(latitude2)
+		);
 
-  return {
-    latitude: toDegrees(latitude2),
-    longitude: normalizeLongitude(toDegrees(longitude2))
-  };
+	return {
+		latitude: toDegrees(latitude2),
+		longitude: normalizeLongitude(toDegrees(longitude2))
+	};
 }
 
+/** Returns the midpoint along the great-circle arc between two coordinates. */
 export function greatCircleMidpoint(a: GeoCoordinate, b: GeoCoordinate): GeoCoordinate {
-  assertValidGeoCoordinate(a, 'a');
-  assertValidGeoCoordinate(b, 'b');
+	assertValidGeoCoordinate(a, 'a');
+	assertValidGeoCoordinate(b, 'b');
 
-  const latitude1 = toRadians(a.latitude);
-  const longitude1 = toRadians(a.longitude);
-  const latitude2 = toRadians(b.latitude);
-  const longitudeDelta = toRadians(b.longitude - a.longitude);
+	const latitude1 = toRadians(a.latitude);
+	const longitude1 = toRadians(a.longitude);
+	const latitude2 = toRadians(b.latitude);
+	const longitudeDelta = toRadians(b.longitude - a.longitude);
 
-  const bx = Math.cos(latitude2) * Math.cos(longitudeDelta);
-  const by = Math.cos(latitude2) * Math.sin(longitudeDelta);
+	const bx = Math.cos(latitude2) * Math.cos(longitudeDelta);
+	const by = Math.cos(latitude2) * Math.sin(longitudeDelta);
 
-  const latitude3 = Math.atan2(
-    Math.sin(latitude1) + Math.sin(latitude2),
-    Math.sqrt((Math.cos(latitude1) + bx) ** 2 + by ** 2)
-  );
+	const latitude3 = Math.atan2(
+		Math.sin(latitude1) + Math.sin(latitude2),
+		Math.sqrt((Math.cos(latitude1) + bx) ** 2 + by ** 2)
+	);
 
-  const longitude3 = longitude1 + Math.atan2(by, Math.cos(latitude1) + bx);
+	const longitude3 = longitude1 + Math.atan2(by, Math.cos(latitude1) + bx);
 
-  return {
-    latitude: toDegrees(latitude3),
-    longitude: normalizeLongitude(toDegrees(longitude3))
-  };
+	return {
+		latitude: toDegrees(latitude3),
+		longitude: normalizeLongitude(toDegrees(longitude3))
+	};
 }
 
+/** Normalizes any longitude into the inclusive range -180..180. */
 export function normalizeLongitude(longitude: number): number {
-  assertFiniteNumber(longitude, 'longitude');
+	assertFiniteNumber(longitude, 'longitude');
 
-  const normalized = ((longitude + 180) % 360 + 360) % 360 - 180;
+	const normalized = ((longitude + 180) % 360 + 360) % 360 - 180;
 
-  return normalized === -180 ? 180 : normalized;
+	return normalized === -180 ? 180 : normalized;
 }
 
+/** Validates that a geographic coordinate has finite latitude and longitude in range. */
 function assertValidGeoCoordinate(value: GeoCoordinate, label: string): void {
-  assertFiniteNumber(value.latitude, `${label}.latitude`);
-  assertFiniteNumber(value.longitude, `${label}.longitude`);
+	assertFiniteNumber(value.latitude, `${label}.latitude`);
+	assertFiniteNumber(value.longitude, `${label}.longitude`);
 
-  if (value.latitude < -90 || value.latitude > 90) {
-    throw new Error(`${label}.latitude must be between -90 and 90 degrees.`);
-  }
+	if (value.latitude < -90 || value.latitude > 90) {
+		throw new Error(`${label}.latitude must be between -90 and 90 degrees.`);
+	}
 
-  if (value.longitude < -180 || value.longitude > 180) {
-    throw new Error(`${label}.longitude must be between -180 and 180 degrees.`);
-  }
+	if (value.longitude < -180 || value.longitude > 180) {
+		throw new Error(`${label}.longitude must be between -180 and 180 degrees.`);
+	}
 }
 
+/** Validates that a radius is finite and strictly positive. */
 function assertValidRadius(radius: number): void {
-  assertFiniteNumber(radius, 'radius');
+	assertFiniteNumber(radius, 'radius');
 
-  if (radius <= 0) {
-    throw new Error('radius must be greater than 0.');
-  }
+	if (radius <= 0) {
+		throw new Error('radius must be greater than 0.');
+	}
 }
 
+/** Validates that a numeric input is finite before calculations continue. */
 function assertFiniteNumber(value: number, label: string): void {
-  if (!Number.isFinite(value)) {
-    throw new Error(`${label} must be a finite number.`);
-  }
+	if (!Number.isFinite(value)) {
+		throw new Error(`${label} must be a finite number.`);
+	}
 }
 
+/** Converts degrees to radians for spherical calculations. */
 function toRadians(value: number): number {
-  return (value * Math.PI) / 180;
+	return (value * Math.PI) / 180;
 }
 
+/** Converts radians back to degrees for geographic results. */
 function toDegrees(value: number): number {
-  return (value * 180) / Math.PI;
+	return (value * 180) / Math.PI;
 }
 
+/** Normalizes a bearing into the range 0..360. */
 function normalizeBearing(value: number): number {
-  return ((value % 360) + 360) % 360;
+	return ((value % 360) + 360) % 360;
 }

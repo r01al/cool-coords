@@ -2,62 +2,65 @@ import { distance } from './metrics';
 import { boundingBox, centroid } from './geometry';
 import type { Coordinate, CoordinateGroup } from './types';
 
+/** Clusters planar points by connected links that fall within a maximum distance. */
 export function groupByDistance(
-  points: Coordinate[],
-  maxDistance: number
+	points: Coordinate[],
+	maxDistance: number
 ): CoordinateGroup[] {
-  if (!Number.isFinite(maxDistance) || maxDistance < 0) {
-    throw new Error('maxDistance must be a finite number greater than or equal to 0.');
-  }
+	if (!Number.isFinite(maxDistance) || maxDistance < 0) {
+		throw new Error('maxDistance must be a finite number greater than or equal to 0.');
+	}
 
-  if (points.length === 0) {
-    return [];
-  }
+	if (points.length === 0) {
+		return [];
+	}
 
-  const parents = points.map((_, index) => index);
+	const parents = points.map((_, index) => index);
 
-  for (let leftIndex = 0; leftIndex < points.length; leftIndex += 1) {
-    for (let rightIndex = leftIndex + 1; rightIndex < points.length; rightIndex += 1) {
-      if (distance(points[leftIndex]!, points[rightIndex]!) <= maxDistance) {
-        union(parents, leftIndex, rightIndex);
-      }
-    }
-  }
+	for (let leftIndex = 0; leftIndex < points.length; leftIndex += 1) {
+		for (let rightIndex = leftIndex + 1; rightIndex < points.length; rightIndex += 1) {
+			if (distance(points[leftIndex]!, points[rightIndex]!) <= maxDistance) {
+				union(parents, leftIndex, rightIndex);
+			}
+		}
+	}
 
-  const grouped = new Map<number, Coordinate[]>();
+	const grouped = new Map<number, Coordinate[]>();
 
-  for (let index = 0; index < points.length; index += 1) {
-    const root = find(parents, index);
-    const cluster = grouped.get(root);
+	for (let index = 0; index < points.length; index += 1) {
+		const root = find(parents, index);
+		const cluster = grouped.get(root);
 
-    if (cluster) {
-      cluster.push(points[index]!);
-      continue;
-    }
+		if (cluster) {
+			cluster.push(points[index]!);
+			continue;
+		}
 
-    grouped.set(root, [points[index]!]);
-  }
+		grouped.set(root, [points[index]!]);
+	}
 
-  return [...grouped.values()].map((clusterPoints) => ({
-    points: clusterPoints,
-    centroid: centroid(clusterPoints)!,
-    bounds: boundingBox(clusterPoints)!
-  }));
+	return [...grouped.values()].map((clusterPoints) => ({
+		points: clusterPoints,
+		centroid: centroid(clusterPoints)!,
+		bounds: boundingBox(clusterPoints)!
+	}));
 }
 
+/** Finds the root parent for a clustered point with path compression. */
 function find(parents: number[], index: number): number {
-  if (parents[index] !== index) {
-    parents[index] = find(parents, parents[index]!);
-  }
+	if (parents[index] !== index) {
+		parents[index] = find(parents, parents[index]!);
+	}
 
-  return parents[index]!;
+	return parents[index]!;
 }
 
+/** Merges two point clusters when they are connected by the distance threshold. */
 function union(parents: number[], leftIndex: number, rightIndex: number): void {
-  const leftRoot = find(parents, leftIndex);
-  const rightRoot = find(parents, rightIndex);
+	const leftRoot = find(parents, leftIndex);
+	const rightRoot = find(parents, rightIndex);
 
-  if (leftRoot !== rightRoot) {
-    parents[rightRoot] = leftRoot;
-  }
+	if (leftRoot !== rightRoot) {
+		parents[rightRoot] = leftRoot;
+	}
 }
