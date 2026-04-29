@@ -37,6 +37,90 @@ npm test
 npm run build
 ```
 
+## 🧭 What This Library Covers
+
+Current functionality includes:
+
+- 📏 Euclidean distance and squared distance
+- 🧮 Distance matrix generation for flat coordinates
+- ➰ Path length for flat coordinates
+- 📦 Bounding boxes and centroids
+- ↔️ Translation and midpoint helpers
+- 🧷 Point grouping by distance
+- ⭕ Minimum enclosing circle
+- 🌍 Great-circle distance and path length for GPS coordinates
+- 🧮 Distance matrix generation for GPS coordinates
+- 🧭 Initial bearing and destination point for GPS coordinates
+- 🔷 Polygon area for flat coordinates
+- 🎯 Polygon centroids for flat coordinates
+- 🌐 Polygon area for GPS coordinates using Earth-radius-aware spherical calculations
+- 🛰️ Polygon centroids for GPS coordinates
+- 🕳️ Polygon holes and multipolygon totals for both flat and GPS coordinates
+
+## 🗂️ Function Reference
+
+### 📐 Flat Coordinates
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `squaredDistance` | Squared Euclidean distance for planar coordinates. | [Jump](#squareddistancea-b) |
+| `distance` | Euclidean distance for planar coordinates. | [Jump](#distancea-b) |
+| `createDistanceMatrix` | Symmetric distance matrix for planar points. | [Jump](#createdistancematrixpoints) |
+| `pathLength` | Total length of a planar path or closed ring. | [Jump](#pathlengthpoints-closed) |
+| `centroid` | Arithmetic mean of planar points. | [Jump](#centroidpoints) |
+| `boundingBox` | Axis-aligned bounds for planar points. | [Jump](#boundingboxpoints) |
+| `translate` | Offset a planar point by a delta. | [Jump](#translatepoint-delta) |
+| `midpoint` | Midpoint between two planar points. | [Jump](#midpointa-b) |
+
+### ⭕ Circle And Grouping
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `circleFromTwoPoints` | Circle whose diameter spans two points. | [Jump](#circlefromtwopointsa-b) |
+| `circleFromThreePoints` | Circumcircle through three non-collinear points. | [Jump](#circlefromthreepointsa-b-c) |
+| `isPointInCircle` | Test whether a point lies inside or on a circle. | [Jump](#ispointincirclepoint-circle) |
+| `minimumEnclosingCircle` | Smallest circle that contains all points. | [Jump](#minimumenclosingcirclepoints) |
+| `groupByDistance` | Connected clustering of planar points by threshold distance. | [Jump](#groupbydistancepoints-maxdistance) |
+
+### 🔷 Flat Polygons
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `triangleSignedArea` | Signed planar area of a triangle. | [Jump](#trianglesignedareaa-b-c) |
+| `triangleArea` | Absolute planar area of a triangle. | [Jump](#triangleareaa-b-c) |
+| `polygonSignedArea` | Signed planar area of a polygon ring. | [Jump](#polygonsignedareapoints) |
+| `polygonArea` | Absolute planar area of a polygon ring. | [Jump](#polygonareapoints) |
+| `polygonCentroid` | Area-weighted centroid of a polygon ring. | [Jump](#polygoncentroidpoints) |
+| `polygonWinding` | Winding direction of a polygon ring. | [Jump](#polygonwindingpoints) |
+| `polygonAreaWithHoles` | Filled planar area after subtracting holes. | [Jump](#polygonareawithholesouterring-holes) |
+| `polygonCentroidWithHoles` | Area-weighted centroid of a planar polygon with holes. | [Jump](#polygoncentroidwithholesouterring-holes) |
+| `multiPolygonArea` | Total planar area across multiple polygons. | [Jump](#multipolygonareapolygons) |
+| `multiPolygonCentroid` | Area-weighted centroid across multiple polygons. | [Jump](#multipolygoncentroidpolygons) |
+
+### 🌍 Geographic Coordinates
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `haversineDistance` | Great-circle distance between two GPS coordinates. | [Jump](#haversinedistancea-b-radius) |
+| `createGeodesicDistanceMatrix` | Symmetric great-circle distance matrix for GPS points. | [Jump](#creategeodesicdistancematrixpoints-radius) |
+| `geodesicPathLength` | Total great-circle path length. | [Jump](#geodesicpathlengthpoints-closed-radius) |
+| `initialBearing` | Initial bearing from one GPS coordinate to another. | [Jump](#initialbearinga-b) |
+| `destinationPoint` | Destination reached from a start, distance, and bearing. | [Jump](#destinationpointstart-distance-bearing-radius) |
+| `greatCircleMidpoint` | Midpoint along the great-circle arc. | [Jump](#greatcirclemidpointa-b) |
+| `normalizeLongitude` | Normalize longitude into the `-180..180` range. | [Jump](#normalizelongitudelongitude) |
+
+### 🌐 Geographic Polygons
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `geodesicPolygonSignedArea` | Signed spherical area of a polygon ring. | [Jump](#geodesicpolygonsignedareapoints-radius) |
+| `geodesicPolygonArea` | Absolute spherical area of a polygon ring. | [Jump](#geodesicpolygonareapoints-radius) |
+| `geodesicPolygonCentroid` | Area-weighted centroid of a spherical polygon ring. | [Jump](#geodesicpolygoncentroidpoints-radius) |
+| `geodesicPolygonCentroidWithHoles` | Area-weighted centroid of a spherical polygon with holes. | [Jump](#geodesicpolygoncentroidwithholesouterring-holes-radius) |
+| `geodesicPolygonAreaWithHoles` | Filled spherical area after subtracting holes. | [Jump](#geodesicpolygonareawithholesouterring-holes-radius) |
+| `geodesicMultiPolygonArea` | Total spherical area across multiple polygons. | [Jump](#geodesicmultipolygonareapolygons-radius) |
+| `geodesicMultiPolygonCentroid` | Area-weighted centroid across multiple spherical polygons. | [Jump](#geodesicmultipolygoncentroidpolygons-radius) |
+
 ## ⚡ Quick Start
 
 Flat coordinates:
@@ -86,26 +170,6 @@ geodesicPolygonArea([
 	{ latitude: 1, longitude: 0 }
 ]);
 ```
-
-## 🧭 What This Library Covers
-
-Current functionality includes:
-
-- 📏 Euclidean distance and squared distance
-- 🧮 Distance matrix generation for flat coordinates
-- ➰ Path length for flat coordinates
-- 📦 Bounding boxes and centroids
-- ↔️ Translation and midpoint helpers
-- 🧷 Point grouping by distance
-- ⭕ Minimum enclosing circle
-- 🌍 Great-circle distance and path length for GPS coordinates
-- 🧮 Distance matrix generation for GPS coordinates
-- 🧭 Initial bearing and destination point for GPS coordinates
-- 🔷 Polygon area for flat coordinates
-- 🎯 Polygon centroids for flat coordinates
-- 🌐 Polygon area for GPS coordinates using Earth-radius-aware spherical calculations
-- 🛰️ Polygon centroids for GPS coordinates
-- 🕳️ Polygon holes and multipolygon totals for both flat and GPS coordinates
 
 ## 🤔 Choose The Correct Coordinate Model
 
@@ -307,15 +371,37 @@ midpoint({ x: 0, y: 0 }, { x: 10, y: 6 }); // { x: 5, y: 3 }
 
 Returns the circle whose diameter is the line segment from `a` to `b`.
 
+```ts
+circleFromTwoPoints(
+	{ x: 0, y: 0 },
+	{ x: 4, y: 0 }
+); // { center: { x: 2, y: 0 }, radius: 2 }
+```
+
 #### `circleFromThreePoints(a, b, c)`
 
 Returns the circumcircle passing through three points.
 
 - Returns `null` when the points are collinear or nearly collinear
 
+```ts
+circleFromThreePoints(
+	{ x: 0, y: 1 },
+	{ x: -1, y: 0 },
+	{ x: 1, y: 0 }
+); // { center: { x: 0, y: 0 }, radius: 1 }
+```
+
 #### `isPointInCircle(point, circle)`
 
 Checks whether a point lies inside or on the circle.
+
+```ts
+isPointInCircle(
+	{ x: 1, y: 1 },
+	{ center: { x: 0, y: 0 }, radius: 2 }
+); // true
+```
 
 #### `minimumEnclosingCircle(points)`
 
@@ -323,6 +409,14 @@ Returns the smallest circle found that contains all points.
 
 - Returns `null` for an empty input array
 - Current implementation favors correctness and clarity over large-dataset optimization
+
+```ts
+minimumEnclosingCircle([
+	{ x: 0, y: 0 },
+	{ x: 4, y: 0 },
+	{ x: 2, y: 2 }
+]);
+```
 
 ### 🧷 Grouping Helper
 
@@ -494,6 +588,25 @@ Returns the centroid of the filled polygon after subtracting hole areas.
 - Hole winding does not matter
 - Returns `null` if the filled area is zero or degenerate
 
+```ts
+polygonCentroidWithHoles(
+	[
+		{ x: 0, y: 0 },
+		{ x: 10, y: 0 },
+		{ x: 10, y: 10 },
+		{ x: 0, y: 10 }
+	],
+	[
+		[
+			{ x: 0, y: 0 },
+			{ x: 4, y: 0 },
+			{ x: 4, y: 4 },
+			{ x: 0, y: 4 }
+		]
+	]
+); // { x: 5.571428571428571, y: 5.571428571428571 }
+```
+
 ### `multiPolygonArea(polygons)`
 
 Returns the total area of multiple polygons.
@@ -527,6 +640,27 @@ Returns the area-weighted centroid across multiple flat polygons.
 
 - Each polygon may include holes
 - Returns `null` when total filled area is zero
+
+```ts
+multiPolygonCentroid([
+	{
+		outer: [
+			{ x: 0, y: 0 },
+			{ x: 4, y: 0 },
+			{ x: 4, y: 3 },
+			{ x: 0, y: 3 }
+		]
+	},
+	{
+		outer: [
+			{ x: 10, y: 10 },
+			{ x: 12, y: 10 },
+			{ x: 12, y: 12 },
+			{ x: 10, y: 12 }
+		]
+	}
+]); // { x: 4.25, y: 3.875 }
+```
 
 ## 🌍 GPS And Earth-Radius-Aware Helpers
 
@@ -601,6 +735,13 @@ Returns initial bearing in degrees from `a` to `b`.
 
 - 🧭 Result is normalized to the range `0..360`
 
+```ts
+initialBearing(
+	{ latitude: 32.0853, longitude: 34.7818 },
+	{ latitude: 31.7683, longitude: 35.2137 }
+);
+```
+
 ### `destinationPoint(start, distance, bearing, radius?)`
 
 Returns the GPS coordinate reached by traveling a given distance from a start point at a given bearing.
@@ -617,9 +758,20 @@ destinationPoint(
 
 Returns the midpoint on the sphere between two GPS coordinates.
 
+```ts
+greatCircleMidpoint(
+	{ latitude: 32.0853, longitude: 34.7818 },
+	{ latitude: 31.7683, longitude: 35.2137 }
+);
+```
+
 ### `normalizeLongitude(longitude)`
 
 Normalizes any longitude value into the range `-180..180`.
+
+```ts
+normalizeLongitude(190); // -170
+```
 
 ## 🌐 Polygon Area For GPS Coordinates
 
@@ -683,12 +835,37 @@ Returns an area-weighted centroid for a polygon on the sphere.
 - Returns `null` for degenerate polygons with zero area
 - Uses spherical weighting rather than flat `x/y` formulas
 
+```ts
+geodesicPolygonCentroid([
+	{ latitude: 0, longitude: 0 },
+	{ latitude: 0, longitude: 90 },
+	{ latitude: 90, longitude: 0 }
+]);
+```
+
 ### `geodesicPolygonCentroidWithHoles(outerRing, holes?, radius?)`
 
 Returns the centroid of the filled spherical polygon after subtracting hole areas.
 
 - Hole winding does not matter
 - Returns `null` when the filled area is zero
+
+```ts
+geodesicPolygonCentroidWithHoles(
+	[
+		{ latitude: 0, longitude: 0 },
+		{ latitude: 0, longitude: 90 },
+		{ latitude: 90, longitude: 0 }
+	],
+	[
+		[
+			{ latitude: 0, longitude: 45 },
+			{ latitude: 45, longitude: 90 },
+			{ latitude: 45, longitude: 0 }
+		]
+	]
+);
+```
 
 ### `geodesicPolygonAreaWithHoles(outerRing, holes?, radius?)`
 
@@ -725,6 +902,25 @@ Returns the area-weighted centroid across multiple geodesic polygons.
 
 - Each polygon may include holes
 - Returns `null` when total filled area is zero
+
+```ts
+geodesicMultiPolygonCentroid([
+	{
+		outer: [
+			{ latitude: 0, longitude: 0 },
+			{ latitude: 0, longitude: 90 },
+			{ latitude: 90, longitude: 0 }
+		]
+	},
+	{
+		outer: [
+			{ latitude: 0, longitude: 45 },
+			{ latitude: 45, longitude: 90 },
+			{ latitude: 45, longitude: 0 }
+		]
+	}
+]);
+```
 
 ```ts
 geodesicMultiPolygonArea([
