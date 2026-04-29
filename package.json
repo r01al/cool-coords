@@ -1,6 +1,6 @@
 {
 	"name": "@r01al/cool-coords",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "TypeScript coordinate and geometry utilities for cartesian and GPS calculations, including polygon area helpers.",
 	"license": "MIT",
 	"type": "module",
