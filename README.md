@@ -7,6 +7,7 @@
 Use `cool-coords` when you need to:
 
 - 📏 Measure flat `x/y` distances, paths, bounds, and polygons
+- 🧊 Measure 3D cartesian distances, paths, bounds, and midpoints
 - 🌍 Measure GPS distances, bearings, paths, and areas on a spherical Earth model
 - 🧮 Build distance matrices for both planar and geodesic coordinates
 - 🧩 Group or analyze points without pulling in a large GIS stack
@@ -14,6 +15,7 @@ Use `cool-coords` when you need to:
 It supports both:
 
 - 📐 Flat cartesian coordinates such as canvas points, SVG points, projected map points, and generic `x/y` data
+- 🧊 3D cartesian coordinates such as point clouds, meshes, simulations, and generic `x/y/z` data
 - 🛰️ Geographic coordinates such as GPS latitude/longitude on a spherical Earth model
 
 The package is bundled with Rollup and ships:
@@ -42,10 +44,15 @@ npm run build
 Current functionality includes:
 
 - 📏 Euclidean distance and squared distance
+- 🧊 3D Euclidean distance and squared distance
 - 🧮 Distance matrix generation for flat coordinates
+- 🧊 3D distance matrix generation
 - ➰ Path length for flat coordinates
+- 🧊 3D path length
 - 📦 Bounding boxes and centroids
+- 🧊 3D bounding boxes and centroids
 - ↔️ Translation and midpoint helpers
+- 🧊 3D translation and midpoint helpers
 - 🧷 Point grouping by distance
 - ⭕ Minimum enclosing circle
 - 🌍 Great-circle distance and path length for GPS coordinates
@@ -71,6 +78,19 @@ Current functionality includes:
 | `boundingBox` | Axis-aligned bounds for planar points. | [Jump](#boundingboxpoints) |
 | `translate` | Offset a planar point by a delta. | [Jump](#translatepoint-delta) |
 | `midpoint` | Midpoint between two planar points. | [Jump](#midpointa-b) |
+
+### 🧊 3D Cartesian Coordinates
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `squaredDistance3D` | Squared Euclidean distance for 3D cartesian coordinates. | [Jump](#squareddistance3da-b) |
+| `distance3D` | Euclidean distance for 3D cartesian coordinates. | [Jump](#distance3da-b) |
+| `createDistanceMatrix3D` | Symmetric distance matrix for 3D cartesian points. | [Jump](#createdistancematrix3dpoints) |
+| `pathLength3D` | Total length of a 3D cartesian path or closed ring. | [Jump](#pathlength3dpoints-closed) |
+| `centroid3D` | Arithmetic mean of 3D cartesian points. | [Jump](#centroid3dpoints) |
+| `boundingBox3D` | Axis-aligned bounds for 3D cartesian points. | [Jump](#boundingbox3dpoints) |
+| `translate3D` | Offset a 3D cartesian point by a delta. | [Jump](#translate3dpoint-delta) |
+| `midpoint3D` | Midpoint between two 3D cartesian points. | [Jump](#midpoint3da-b) |
 
 ### ⭕ Circle And Grouping
 
@@ -176,6 +196,7 @@ geodesicPolygonArea([
 This is the most important decision in the library:
 
 - 📐 Use flat helpers for already-projected or abstract `x/y` coordinates
+- 🧊 Use 3D helpers for cartesian `x/y/z` coordinates
 - 🌍 Use geodesic helpers for raw latitude/longitude GPS coordinates
 
 Use cartesian helpers when your data looks like this:
@@ -188,6 +209,12 @@ Use geodesic helpers when your data looks like this:
 
 ```ts
 { latitude: number, longitude: number }
+```
+
+Use 3D cartesian helpers when your data looks like this:
+
+```ts
+{ x: number, y: number, z: number }
 ```
 
 This distinction matters:
@@ -205,6 +232,12 @@ This distinction matters:
 export interface Coordinate {
 	x: number;
 	y: number;
+}
+
+export interface Coordinate3D {
+	x: number;
+	y: number;
+	z: number;
 }
 
 export interface GeoCoordinate {
@@ -228,6 +261,15 @@ export interface BoundingBox {
 	width: number;
 	height: number;
 	center: Coordinate;
+}
+
+export interface BoundingBox3D {
+	min: Coordinate3D;
+	max: Coordinate3D;
+	width: number;
+	height: number;
+	depth: number;
+	center: Coordinate3D;
 }
 
 export interface Circle {
@@ -257,8 +299,10 @@ All polygon area helpers follow the same practical rules:
 If you just want the highlights:
 
 - 📏 Flat distances and paths: `distance`, `squaredDistance`, `createDistanceMatrix`, `pathLength`
+- 🧊 3D distances and paths: `distance3D`, `squaredDistance3D`, `createDistanceMatrix3D`, `pathLength3D`
 - 🌍 GPS distances and paths: `haversineDistance`, `createGeodesicDistanceMatrix`, `geodesicPathLength`
 - 📦 Shape helpers: `boundingBox`, `centroid`, `midpoint`, `translate`
+- 🧊 3D shape helpers: `boundingBox3D`, `centroid3D`, `midpoint3D`, `translate3D`
 - ⭕ Circle helpers: `circleFromTwoPoints`, `circleFromThreePoints`, `minimumEnclosingCircle`
 - 🔷 Polygon helpers: `polygonArea`, `polygonCentroid`, `polygonAreaWithHoles`, `polygonCentroidWithHoles`, `multiPolygonArea`, `multiPolygonCentroid`
 - 🌐 Geodesic polygon helpers: `geodesicPolygonArea`, `geodesicPolygonCentroid`, `geodesicPolygonAreaWithHoles`, `geodesicPolygonCentroidWithHoles`, `geodesicMultiPolygonArea`, `geodesicMultiPolygonCentroid`
@@ -363,6 +407,107 @@ Returns the halfway point between two cartesian coordinates.
 
 ```ts
 midpoint({ x: 0, y: 0 }, { x: 10, y: 6 }); // { x: 5, y: 3 }
+```
+
+### 🧊 3D Cartesian Helpers
+
+#### `squaredDistance3D(a, b)`
+
+Returns squared Euclidean distance in 3D.
+
+```ts
+squaredDistance3D(
+	{ x: 0, y: 0, z: 0 },
+	{ x: 2, y: 3, z: 6 }
+); // 49
+```
+
+#### `distance3D(a, b)`
+
+Returns Euclidean distance in 3D.
+
+```ts
+distance3D(
+	{ x: 0, y: 0, z: 0 },
+	{ x: 2, y: 3, z: 6 }
+); // 7
+```
+
+#### `createDistanceMatrix3D(points)`
+
+Returns an `N x N` Euclidean distance matrix for 3D cartesian coordinates.
+
+- The diagonal is always `0`
+- The result is symmetric
+- Returns `[]` for an empty input array
+
+```ts
+createDistanceMatrix3D([
+	{ x: 0, y: 0, z: 0 },
+	{ x: 0, y: 3, z: 4 },
+	{ x: 12, y: 3, z: 4 }
+]);
+```
+
+#### `pathLength3D(points, closed?)`
+
+Returns total path length for a 3D cartesian polyline.
+
+```ts
+pathLength3D([
+	{ x: 0, y: 0, z: 0 },
+	{ x: 0, y: 3, z: 4 },
+	{ x: 12, y: 3, z: 4 }
+]); // 17
+```
+
+#### `centroid3D(points)`
+
+Returns the arithmetic mean of all input 3D points.
+
+- Returns `null` for an empty array
+
+```ts
+centroid3D([
+	{ x: 0, y: 0, z: 0 },
+	{ x: 4, y: 2, z: 6 }
+]); // { x: 2, y: 1, z: 3 }
+```
+
+#### `boundingBox3D(points)`
+
+Returns the minimum axis-aligned bounding box in 3D.
+
+- Returns `null` for an empty array
+- Result includes `min`, `max`, `width`, `height`, `depth`, and `center`
+
+```ts
+boundingBox3D([
+	{ x: -1, y: 3, z: 2 },
+	{ x: 4, y: 10, z: 8 }
+]);
+```
+
+#### `translate3D(point, delta)`
+
+Moves a 3D point by a delta.
+
+```ts
+translate3D(
+	{ x: 5, y: 10, z: -2 },
+	{ x: -2, y: 3, z: 4 }
+); // { x: 3, y: 13, z: 2 }
+```
+
+#### `midpoint3D(a, b)`
+
+Returns the halfway point between two 3D cartesian coordinates.
+
+```ts
+midpoint3D(
+	{ x: 0, y: 0, z: 0 },
+	{ x: 10, y: 6, z: 2 }
+); // { x: 5, y: 3, z: 1 }
 ```
 
 ### ⭕ Circle Helpers

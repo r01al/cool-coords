@@ -3,6 +3,12 @@ export interface Coordinate {
 	y: number;
 }
 
+export interface Coordinate3D {
+	x: number;
+	y: number;
+	z: number;
+}
+
 export interface GeoCoordinate {
 	latitude: number;
 	longitude: number;
@@ -21,6 +27,15 @@ export interface BoundingBox {
 	width: number;
 	height: number;
 	center: Coordinate;
+}
+
+export interface BoundingBox3D {
+	min: Coordinate3D;
+	max: Coordinate3D;
+	width: number;
+	height: number;
+	depth: number;
+	center: Coordinate3D;
 }
 
 export interface Circle {
