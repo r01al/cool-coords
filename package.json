@@ -1,0 +1,50 @@
+{
+  "name": "cool-coords",
+  "version": "0.1.0",
+  "description": "TypeScript coordinate and geometry utilities for cartesian and GPS calculations, including polygon area helpers.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "coordinates",
+    "geometry",
+    "distance",
+    "polygon",
+    "gps",
+    "spatial",
+    "typescript",
+    "rollup"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && ./node_modules/.bin/rollup -c && ./node_modules/.bin/tsc --emitDeclarationOnly --declaration --declarationMap --outDir dist/types",
+    "test": "./node_modules/.bin/vitest run",
+    "test:watch": "./node_modules/.bin/vitest",
+    "typecheck": "./node_modules/.bin/tsc --noEmit",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.2",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.41.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
